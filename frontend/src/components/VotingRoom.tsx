@@ -47,11 +47,28 @@ export default function VotingRoom({ roomId }: VotingRoomProps) {
 
   const totalVotes = Object.values(roomState.votes).reduce((a, b) => a + b, 0);
 
-  const onSubmitCustomOption = () => {
-    addOption(customOption)
-    setCustomOption("")
+const onSubmitCustomOption = () => {
+  const trimmed = customOption.trim();
+
+  if (!trimmed) {
+    alert("You can't submit a blank entry!");
+    return;
   }
 
+  const isDuplicate = roomState?.votes
+    ? Object.keys(roomState.votes).some(
+        (option) => option.toLowerCase() === trimmed.toLowerCase()
+      )
+    : false;
+
+  if (isDuplicate) {
+    alert("That option already exists.");
+    return;
+  }
+
+  addOption(trimmed);
+  setCustomOption("");
+};
   return (
     <div>
       <h2>{roomState.question}</h2>

@@ -95,3 +95,4 @@ async def room_websocket(websocket: WebSocket, room_id: str, voter_id: Optional[
 
     except WebSocketDisconnect:
         room.connections.pop(websocket, None)
+        await room.broadcast_state()

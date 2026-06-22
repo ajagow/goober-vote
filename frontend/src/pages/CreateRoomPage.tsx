@@ -87,6 +87,12 @@ export default function HomePage() {
       return;
     }
 
+    const hasDuplicates = new Set(cleanOptions.map((o) => o.toLowerCase())).size !== cleanOptions.length;
+    if (hasDuplicates) {
+      alert("Options must be unique — remove the duplicate.");
+      return;
+    }
+
     const res = await fetch(`${API_URL}/rooms`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -103,7 +109,7 @@ export default function HomePage() {
       <InputWrapper>
         <Input label="question" placeholder="Question" value={question} onChange={e => setQuestion(e.target.value)}/>
         {options.map((opt, i) => (
-          <OptionRow key={i}>
+          <OptionRow key={opt}>
             <Input
               label={`Option ${i}`}
               placeholder={`Option ${i + 1}`}

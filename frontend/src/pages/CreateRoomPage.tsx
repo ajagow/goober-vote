@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "../components/Input";
 import styled from "@emotion/styled";
-import { ACCENT, API_URL, BORDER, Button, PageLayout, YELLOW } from "../contants";
+import { ACCENT, API_URL, BORDER, Button, ErrorBanner, PageLayout, YELLOW } from "../contants";
 import { Checkbox } from "../components/Checkbox";
 
 const InputWrapper = styled.div`
@@ -61,8 +61,13 @@ export default function HomePage() {
   const [question, setQuestion] = useState("");
   const [options, setOptions] = useState(["", ""]);
   const [singleVote, setSingleVote] = useState(false);
+  const [error, setError] = useState("")
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setError("")
+  }, [question, options])
 
   const updateOption = (index: number, value: string) => {
     setOptions((prev) => prev.map((opt, i) => (i === index ? value : opt)));
@@ -74,7 +79,7 @@ export default function HomePage() {
 
   const removeOptionField = (index: number) => {
     if (options.length <= 1) {
-      alert("A poll needs at least one option.");
+      setError("A poll needs at least one option.");
       return;
     }
     setOptions((prev) => prev.filter((_, i) => i !== index));
@@ -83,7 +88,7 @@ export default function HomePage() {
   const createRoom = async () => {
     const cleanOptions = options.map((o) => o.trim()).filter(Boolean);
     if (!question.trim() || cleanOptions.length < 1) {
-      alert("Add a question and at least one option.");
+      setError("Add a question and at least one option.");
       return;
     }
 
@@ -107,6 +112,7 @@ export default function HomePage() {
     <PageLayout>
       <h2>Create a voting room</h2>
       <InputWrapper>
+        {error && <ErrorBanner>{error}</ErrorBanner>}
         <Input label="question" placeholder="Question" value={question} onChange={e => setQuestion(e.target.value)}/>
         {options.map((opt, i) => (
           <OptionRow key={i}>

@@ -66,6 +66,7 @@ def health():
 
 @app.websocket("/ws/rooms/{room_id}")
 async def room_websocket(websocket: WebSocket, room_id: str, voter_id: Optional[str] = None):
+    await websocket.accept()
     room = rooms.get(room_id)
     if not room:
         await websocket.close(code=4404)
@@ -75,7 +76,6 @@ async def room_websocket(websocket: WebSocket, room_id: str, voter_id: Optional[
         await websocket.close(code=4400)  # bad request: no voter_id provided
         return
 
-    await websocket.accept()
     room.connections[websocket] = voter_id
     await room.broadcast_state()
 

@@ -1,9 +1,11 @@
 import { useRoomSocket } from "../utils/useRoomSocket";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { VoteCard } from "./VoteCard";
 import styled from "@emotion/styled";
 import { Input } from "./Input";
-import { ACCENT, Button } from "../contants";
+import { ACCENT, BLUE, Button, ErrorBanner } from "../contants";
+import { useNavigate } from "react-router-dom";
+import { CopyButton } from "./CopyButton";
 
 
 type VotingRoomProps = {
@@ -28,10 +30,30 @@ const VoteCount = styled.p`
   color: lightgrey;
 `
 
+const NotFoundContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: max-content;
+  margin: auto;
+`
+
+const Header = styled.div`
+    display: grid;
+    align-items: self-start;
+    grid-template-columns: auto max-content;
+`
+
 export default function VotingRoom({ roomId }: VotingRoomProps) {
   const { roomState, status, vote, addOption, mySelections } = useRoomSocket(roomId);
   const [customOption, setCustomOption] = useState("")
+  const [error, setError] = useState("")
 
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    setError("")
+  }, [customOption])
 
   if (status === "connecting") {
     return <p>Connecting to room...</p>;
@@ -39,6 +61,15 @@ export default function VotingRoom({ roomId }: VotingRoomProps) {
 
   if (status === "error" || status === "disconnected") {
     return <p>Connection lost. Try refreshing.</p>;
+  }
+
+  if (status === "notfound") {
+    return (
+      <NotFoundContainer>
+        <p>sorry, room not found</p>
+        <Button onClick={() => navigate("/")} backgroundColor={BLUE}>go back home</Button>
+      </NotFoundContainer>
+    )
   }
 
   if (!roomState) {
@@ -51,7 +82,7 @@ const onSubmitCustomOption = () => {
   const trimmed = customOption.trim();
 
   if (!trimmed) {
-    alert("You can't submit a blank entry!");
+    setError("You can't submit a blank entry!");
     return;
   }
 
@@ -62,7 +93,7 @@ const onSubmitCustomOption = () => {
     : false;
 
   if (isDuplicate) {
-    alert("That option already exists.");
+    setError("That option already exists.");
     return;
   }
 
@@ -71,8 +102,12 @@ const onSubmitCustomOption = () => {
 };
   return (
     <div>
-      <h2>{roomState.question}</h2>
+      <Header>
+        <h2>{roomState.question}</h2>
+        <CopyButton />
+      </Header>
       <OptionsContainer>
+        {error && <ErrorBanner>{error}</ErrorBanner>}
         {
           Object.entries(roomState.votes).map(([option, count]) => {
             const percentage = count ? ((count / totalVotes) * 100) : 0

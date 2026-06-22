@@ -5,7 +5,7 @@ import { API_URL } from "../contants";
 
 const WS_URL = API_URL?.replace(/^http/, "ws"); // http→ws, https→wss
 
-type ConnectionStatus = "connecting" | "connected" | "disconnected" | "error";
+type ConnectionStatus = "connecting" | "connected" | "disconnected" | "error" | "notfound";
 
 export function useRoomSocket(roomId: string) {
   const [roomState, setRoomState] = useState<RoomState | null>(null);
@@ -26,7 +26,14 @@ export function useRoomSocket(roomId: string) {
     };
 
     ws.onerror = () => setStatus("error");
-    ws.onclose = () => setStatus("disconnected");
+    ws.onclose = (event) => {
+      console.log(event.code)
+      if (event.code === 4404) {
+        setStatus("notfound")
+      } else {
+        setStatus("disconnected")
+      }
+    }
 
     return () => {
       ws.close();

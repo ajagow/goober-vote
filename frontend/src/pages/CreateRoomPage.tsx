@@ -109,7 +109,7 @@ export default function HomePage() {
       <InputWrapper>
         <Input label="question" placeholder="Question" value={question} onChange={e => setQuestion(e.target.value)}/>
         {options.map((opt, i) => (
-          <OptionRow key={opt}>
+          <OptionRow key={i}>
             <Input
               label={`Option ${i}`}
               placeholder={`Option ${i + 1}`}

@@ -51,7 +51,7 @@ const RemoveButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: ${YELLOW}
+  background: ${YELLOW};
   color: black;
 `;
 

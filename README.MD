@@ -1,11 +1,20 @@
 # Goober Vote
 
 Create live voting rooms and watch results update in real time.
+Built using FastAPI, websockets, and React!
 
 ## Stack
 
 - **Backend**: FastAPI (Python) + WebSockets, in-memory room storage
 - **Frontend**: React + TypeScript, Emotion for styling
+
+## Screenshots
+
+![Landing page](assets/welcome.png)
+
+![Create a room](assets/create.png)
+
+![Voting room](assets/vote.png)
 
 ## Project structure
 

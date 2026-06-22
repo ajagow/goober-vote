@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+export const API_URL = process.env.REACT_APP_API_URL;
 
 export const BORDER = "#000"
 export const ACCENT = "#FF5C5C";

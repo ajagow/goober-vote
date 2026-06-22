@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import type { RoomState } from "../types";
 import { getVoterId } from "./getVoterId";
+import { API_URL } from "../contants";
+
+const WS_URL = API_URL?.replace(/^http/, "ws"); // http→ws, https→wss
 
 type ConnectionStatus = "connecting" | "connected" | "disconnected" | "error";
 
@@ -11,9 +14,7 @@ export function useRoomSocket(roomId: string) {
   const voterId = useRef(getVoterId());
 
   useEffect(() => {
-    const ws = new WebSocket(
-      `ws://localhost:8000/ws/rooms/${roomId}?voter_id=${voterId.current}`
-    );    
+    const ws = new WebSocket(`${WS_URL}/ws/rooms/${roomId}?voter_id=${voterId.current}`);
     
     wsRef.current = ws;
 

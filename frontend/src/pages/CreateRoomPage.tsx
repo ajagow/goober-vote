@@ -2,9 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "../components/Input";
 import styled from "@emotion/styled";
-import { ACCENT, BORDER, Button, PageLayout, YELLOW } from "../contants";
+import { ACCENT, API_URL, BORDER, Button, PageLayout, YELLOW } from "../contants";
 import { Checkbox } from "../components/Checkbox";
-
 
 const InputWrapper = styled.div`
   display: flex;
@@ -55,6 +54,7 @@ const RemoveButton = styled.button`
 `;
 
 
+
 export default function HomePage() {
   const [question, setQuestion] = useState("");
   const [options, setOptions] = useState(["", ""]);
@@ -85,7 +85,7 @@ export default function HomePage() {
       return;
     }
 
-    const res = await fetch("http://localhost:8000/rooms", {
+    const res = await fetch(`${API_URL}/rooms`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ question, options: cleanOptions, single_vote: singleVote }),

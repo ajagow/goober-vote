@@ -18,6 +18,7 @@ const AddOptionButton = styled(Button)`
   border: 3px dashed ${BORDER};
   margin-top: 4px;
   box-shadow: none;
+  color: black;
 `;
 
 const CreateRoomButton = styled(Button)`
@@ -51,6 +52,7 @@ const RemoveButton = styled.button`
   align-items: center;
   justify-content: center;
   background: ${YELLOW}
+  color: black;
 `;
 
 

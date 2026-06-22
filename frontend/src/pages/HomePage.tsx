@@ -42,7 +42,8 @@ const OptionCardContainer = styled.div`
 `
 
 const JoinButton = styled(Button)`
-  background: ${ACCENT}
+  background: ${ACCENT};
+  color: black;
 `
 
 const JoinContainer = styled.div`

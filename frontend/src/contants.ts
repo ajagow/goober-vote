@@ -38,6 +38,7 @@ export const Pill = styled.button`
   border: 2px solid ${BORDER};
   cursor: pointer;
   padding: 10px 16px;
+  color: black;
 `;
 
 export const Card = styled.div`

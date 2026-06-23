@@ -11,6 +11,7 @@ const CopyLinkButton = styled(Button)`
   background: ${BLUE};
   padding: 8px 14px;
   height: 40px;
+  color: black;
 
   @media (max-width: 480px) {
     width: 40px;

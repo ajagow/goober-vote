@@ -7,4 +7,4 @@ export const getVoterId = () => {
     localStorage.setItem(STORAGE_KEY, voterId);
   }
   return voterId;
-}
+};

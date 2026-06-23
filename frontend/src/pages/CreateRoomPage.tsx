@@ -55,19 +55,17 @@ const RemoveButton = styled.button`
   color: black;
 `;
 
-
-
 export default function HomePage() {
   const [question, setQuestion] = useState("");
   const [options, setOptions] = useState(["", ""]);
   const [singleVote, setSingleVote] = useState(false);
-  const [error, setError] = useState("")
+  const [error, setError] = useState("");
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    setError("")
-  }, [question, options])
+    setError("");
+  }, [question, options]);
 
   const updateOption = (index: number, value: string) => {
     setOptions((prev) => prev.map((opt, i) => (i === index ? value : opt)));
@@ -92,7 +90,8 @@ export default function HomePage() {
       return;
     }
 
-    const hasDuplicates = new Set(cleanOptions.map((o) => o.toLowerCase())).size !== cleanOptions.length;
+    const hasDuplicates =
+      new Set(cleanOptions.map((o) => o.toLowerCase())).size !== cleanOptions.length;
     if (hasDuplicates) {
       alert("Options must be unique — remove the duplicate.");
       return;
@@ -113,7 +112,12 @@ export default function HomePage() {
       <h2>Create a voting room</h2>
       <InputWrapper>
         {error && <ErrorBanner>{error}</ErrorBanner>}
-        <Input label="question" placeholder="Question" value={question} onChange={e => setQuestion(e.target.value)}/>
+        <Input
+          label="question"
+          placeholder="Question"
+          value={question}
+          onChange={(e) => setQuestion(e.target.value)}
+        />
         {options.map((opt, i) => (
           <OptionRow key={i}>
             <Input
@@ -122,14 +126,15 @@ export default function HomePage() {
               value={opt}
               onChange={(e) => updateOption(i, e.target.value)}
             />
-            <RemoveButton onClick={() => removeOptionField(i)} aria-label={`Remove option ${i + 1}`}>
+            <RemoveButton
+              onClick={() => removeOptionField(i)}
+              aria-label={`Remove option ${i + 1}`}
+            >
               ×
             </RemoveButton>
           </OptionRow>
         ))}
-        <AddOptionButton onClick={addOptionField}>
-          + add option
-        </AddOptionButton>
+        <AddOptionButton onClick={addOptionField}>+ add option</AddOptionButton>
 
         <Checkbox
           checked={singleVote}

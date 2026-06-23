@@ -15,7 +15,7 @@ export function useRoomSocket(roomId: string) {
 
   useEffect(() => {
     const ws = new WebSocket(`${WS_URL}/ws/rooms/${roomId}?voter_id=${voterId.current}`);
-    
+
     wsRef.current = ws;
 
     ws.onopen = () => setStatus("connected");
@@ -28,11 +28,11 @@ export function useRoomSocket(roomId: string) {
     ws.onerror = () => setStatus("error");
     ws.onclose = (event) => {
       if (event.code === 4404) {
-        setStatus("notfound")
+        setStatus("notfound");
       } else {
-        setStatus("disconnected")
+        setStatus("disconnected");
       }
-    }
+    };
 
     return () => {
       ws.close();
@@ -51,7 +51,7 @@ export function useRoomSocket(roomId: string) {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify({ type: "add-option", option }));
     }
-  }, [])
+  }, []);
 
-  return { roomState, status, mySelections, vote, addOption};
+  return { roomState, status, mySelections, vote, addOption };
 }

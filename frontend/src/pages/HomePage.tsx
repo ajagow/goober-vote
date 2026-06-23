@@ -8,8 +8,8 @@ interface OptionCardProps {
   icon: string;
   title: string;
   subtitle: string;
-  fill: string
-  onClick: () => void
+  fill: string;
+  onClick: () => void;
 }
 
 const IconBox = styled.div<{ fill?: string }>`
@@ -32,31 +32,31 @@ const WelcomeContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
-`
+`;
 
 const OptionCardContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
   margin-top: 12px;
-`
+`;
 
 const JoinButton = styled(Button)`
   background: ${ACCENT};
   color: black;
-`
+`;
 
 const JoinContainer = styled.div`
   display: flex;
   gap: 8px;
   align-items: center;
-`
+`;
 
 const CancelText = styled.span`
   cursor: pointer;
-`
+`;
 
-const OptionCard = ({icon, title, subtitle, fill, onClick}: OptionCardProps) => {
+const OptionCard = ({ icon, title, subtitle, fill, onClick }: OptionCardProps) => {
   return (
     <Card onClick={onClick}>
       <IconBox fill={fill}>{icon}</IconBox>
@@ -65,24 +65,29 @@ const OptionCard = ({icon, title, subtitle, fill, onClick}: OptionCardProps) => 
         <p>{subtitle}</p>
       </div>
     </Card>
-  )
-}
+  );
+};
 
-const JoinRoom = ({onCancel}: {onCancel: () => void}) => {
-  const [roomCode, setRoomCode] = useState("")
-  const navigate = useNavigate()
+const JoinRoom = ({ onCancel }: { onCancel: () => void }) => {
+  const [roomCode, setRoomCode] = useState("");
+  const navigate = useNavigate();
   return (
     <JoinContainer>
-      <Input label={"room code"} placeholder="room code" value={roomCode} onChange={(e) => setRoomCode(e.target.value)} />
+      <Input
+        label={"room code"}
+        placeholder="room code"
+        value={roomCode}
+        onChange={(e) => setRoomCode(e.target.value)}
+      />
       <JoinButton onClick={() => navigate(`/room/${roomCode}`)}>join</JoinButton>
       <CancelText onClick={onCancel}>cancel</CancelText>
     </JoinContainer>
-  )
-}
+  );
+};
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const [showJoinCode, setShowJoinCode] = useState(false)
+  const [showJoinCode, setShowJoinCode] = useState(false);
 
   return (
     <PageLayout>
@@ -90,8 +95,24 @@ export default function HomePage() {
         <h2>Welcome</h2>
         <p>Start a new poll or join an existing one.</p>
         <OptionCardContainer>
-          <OptionCard icon="+" title="Create a room" subtitle="Set a question and invite people to vote" fill={YELLOW} onClick={() => navigate("/create")}/>
-          {showJoinCode ? <JoinRoom onCancel={() => setShowJoinCode(false)}/> : <OptionCard icon="→" title="Join a room" subtitle="Enter a room code to vote live" fill={ACCENT} onClick={() => setShowJoinCode(prev => !prev)}/>}
+          <OptionCard
+            icon="+"
+            title="Create a room"
+            subtitle="Set a question and invite people to vote"
+            fill={YELLOW}
+            onClick={() => navigate("/create")}
+          />
+          {showJoinCode ? (
+            <JoinRoom onCancel={() => setShowJoinCode(false)} />
+          ) : (
+            <OptionCard
+              icon="→"
+              title="Join a room"
+              subtitle="Enter a room code to vote live"
+              fill={ACCENT}
+              onClick={() => setShowJoinCode((prev) => !prev)}
+            />
+          )}
         </OptionCardContainer>
       </WelcomeContainer>
     </PageLayout>

@@ -6,8 +6,6 @@ export default function RoomPage() {
   const { roomId } = useParams<{ roomId: string }>();
 
   return (
-    <PageLayout>
-      {roomId ? <VotingRoom roomId={roomId} /> : <p>No room specified</p>}
-    </PageLayout>
-  )
+    <PageLayout>{roomId ? <VotingRoom roomId={roomId} /> : <p>No room specified</p>}</PageLayout>
+  );
 }

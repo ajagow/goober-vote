@@ -17,6 +17,6 @@ export type VoteMessage = {
 };
 
 export type AddOption = {
-    type: "add-option",
-    option: string
-}
+  type: "add-option";
+  option: string;
+};

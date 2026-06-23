@@ -35,14 +35,15 @@ const CheckboxBox = styled.div<{ checked: boolean }>`
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.1s ease;
 
   &:active {
     transform: translate(1px, 1px);
     box-shadow: 1px 1px 0 #1a1a1a;
   }
 `;
-
 
 export const Checkbox = ({ checked, updateChecked, label }: CheckboxProps) => {
   return (
@@ -53,9 +54,7 @@ export const Checkbox = ({ checked, updateChecked, label }: CheckboxProps) => {
         onChange={(e) => updateChecked(e.target.checked)}
       />
       <CheckboxBox checked={checked}>
-        {checked && (
-          <span style={{ fontWeight: 700, fontSize: 14, lineHeight: 1 }}>✓</span>
-        )}
+        {checked && <span style={{ fontWeight: 700, fontSize: 14, lineHeight: 1 }}>✓</span>}
       </CheckboxBox>
       {label}
     </CheckboxLabel>

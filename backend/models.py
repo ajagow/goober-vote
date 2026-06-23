@@ -1,5 +1,6 @@
 import uuid
-from typing import Dict, List, Set
+import random
+from typing import Dict, List, Set, Optional
 
 from fastapi import WebSocket
 from pydantic import BaseModel
@@ -28,6 +29,10 @@ class Room:
 
         # websocket connection -> voter_id (known immediately at connect time)
         self.connections: Dict[WebSocket, str] = {}
+
+        # is voting open or did we make a selection
+        self.is_closed = False
+        self.chosen_option: Optional[str] = None
 
     def add_option(self, option: str) -> bool:
         """Add a new option to the room. Returns False if it already exists."""
@@ -81,6 +86,10 @@ class Room:
         """Number of currently open connections (people with the page open)."""
         return len(self.connections)
 
+    def set_chosen_option(self):
+        self.chosen_option = random.choice(self.options)
+        return self.chosen_option
+
     async def broadcast_state(self):
         """
         Send room state to every connected client.
@@ -100,6 +109,8 @@ class Room:
                 "voter_count": self.voter_count,
                 "viewer_count": self.viewer_count,
                 "single_vote": self.single_vote,
+                "chosen_option": self.chosen_option,
+                "is_closed": self.is_closed
             }
             try:
                 await ws.send_json(payload)

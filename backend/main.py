@@ -42,6 +42,30 @@ def get_room(room_id: str):
         "votes": room.votes,
     }
 
+@app.get("/rooms/{room_id}/toggle-room")
+async def get_random_option(room_id: str):
+    room = rooms.get(room_id)
+    if not room:
+        return {"error" : "Room not found"}
+    
+    if room.is_closed:
+        room.is_closed = False
+        room.chosen_option = None
+    else:
+        room.set_chosen_option()
+        room.is_closed = True
+
+    await room.broadcast_state()
+    return {"ok": True}
+    
+@app.get("/rooms/{room_id}/vote")
+async def room_vote(room_id: str):
+    room = rooms.get(room_id)
+    if not room:
+        return {"error" : "Room not found"}
+    
+    room.is_closed = False
+
 
 @app.post("/rooms/{room_id}/options")
 async def add_option(room_id: str, req: AddOptionRequest):

@@ -27,7 +27,6 @@ export function useRoomSocket(roomId: string) {
 
     ws.onerror = () => setStatus("error");
     ws.onclose = (event) => {
-      console.log(event.code)
       if (event.code === 4404) {
         setStatus("notfound")
       } else {

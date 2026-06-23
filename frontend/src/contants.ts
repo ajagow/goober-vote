@@ -30,6 +30,16 @@ export const Button = styled.button<{backgroundColor?: string}>`
     ${({ backgroundColor }) => backgroundColor && `background: ${backgroundColor};`}
 `
 
+export const Pill = styled.button`
+    background: transparent;
+    box-shadow: unset;
+    border-radius: 999px;
+    font-weight: 700;
+    border: 2px solid ${BORDER};
+    cursor: pointer;
+    padding: 10px 16px;
+`
+
 export const Card = styled.div`
     border: 3px solid ${BORDER};
     box-shadow: 3px 3px 0 #1a1a1a;

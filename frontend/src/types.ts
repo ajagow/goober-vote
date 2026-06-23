@@ -7,6 +7,8 @@ export type RoomState = {
   voter_count: number;
   viewer_count: number;
   single_vote: boolean;
+  chosen_option: string;
+  is_closed: boolean;
 };
 
 export type VoteMessage = {

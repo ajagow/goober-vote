@@ -13,11 +13,12 @@ const CopyLinkButton = styled(Button)`
   height: 40px;
   color: black;
 
-  @media (max-width: 480px) {
+  @media (max-width: 600px) {
     width: 40px;
     height: 40px;
     padding: 0;
     justify-content: center;
+    font-size: 1.5em;
   }
 `;
 

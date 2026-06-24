@@ -1,13 +1,13 @@
 import { useCallback, useState } from "react";
 import { API_URL } from "../contants";
 
-export const useToggleRoom = (roomId: string | undefined) => {
+export const useReopenRoom = (roomId: string | undefined) => {
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState(false);
 
-  const toggleRoom = useCallback(async () => {
+  const reopenRoom = useCallback(async () => {
     if (!roomId) {
-      setError("No room specified.");
+      setError("No room specified");
       return;
     }
 
@@ -15,14 +15,12 @@ export const useToggleRoom = (roomId: string | undefined) => {
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_URL}/rooms/${roomId}/toggle-room`);
+      const res = await fetch(`${API_URL}/rooms/${roomId}/reopen`, { method: "POST" });
       const data = await res.json();
 
       if (!res.ok || data.error) {
         setError(data.error ?? "Something went wrong. Try again.");
       }
-      // No setResponse here — the WebSocket broadcast will update roomState
-      // in useRoomSocket, which is what the UI should actually render from.
     } catch {
       setError("Please try again.");
     } finally {
@@ -30,5 +28,9 @@ export const useToggleRoom = (roomId: string | undefined) => {
     }
   }, [roomId]);
 
-  return { error, loading, toggleRoom };
+  return {
+    reopenRoom,
+    error,
+    loading,
+  };
 };

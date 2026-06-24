@@ -4,7 +4,7 @@ from typing import Optional
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 
-from models import Room, CreateRoomRequest, AddOptionRequest, rooms
+from models import ChangeMethodRequest, CloseRoomRequest, Room, CreateRoomRequest, AddOptionRequest, rooms
 
 app = FastAPI(title="Voting Rooms")
 
@@ -42,19 +42,35 @@ def get_room(room_id: str):
         "votes": room.votes,
     }
 
-@app.get("/rooms/{room_id}/toggle-room")
-async def get_random_option(room_id: str):
+@app.post("/rooms/{room_id}/close")
+async def close_room(room_id: str, req: CloseRoomRequest):
     room = rooms.get(room_id)
     if not room:
-        return {"error" : "Room not found"}
+        return {"error": "Room not found"}
     
-    if room.is_closed:
-        room.is_closed = False
-        room.chosen_option = None
-    else:
-        room.set_chosen_option()
-        room.is_closed = True
+    room.close(req.method)
+    await room.broadcast_state()
+    return {"ok": True}
 
+@app.post("/rooms/{room_id}/reopen")
+async def open_room(room_id: str):
+    room = rooms.get(room_id)
+    if not room:
+        return {"error": "Room not found"}
+    
+    room.reopen()
+    await room.broadcast_state()
+    return {"ok": True}
+
+@app.post("/rooms/{room_id}/method")
+async def change_method(room_id: str, req: ChangeMethodRequest):
+    room = rooms.get(room_id)
+    if not room:
+        return {"error": "Room not found"}
+    if not room.is_closed:
+        return {"ok": True}
+    
+    room.change_winner_method(req.method)
     await room.broadcast_state()
     return {"ok": True}
     

@@ -3,12 +3,15 @@ import { useEffect, useRef, useState } from "react";
 import { VoteCard } from "./VoteCard";
 import styled from "@emotion/styled";
 import { Input } from "./Input";
-import { ACCENT, BLUE, Button, Card, ErrorBanner, Pill, YELLOW } from "../contants";
+import { ACCENT, BLUE, Button, ErrorBanner, Pill, YELLOW } from "../contants";
 import { useNavigate } from "react-router-dom";
 import { CopyButton } from "./CopyButton";
-import { useToggleRoom } from "../utils/useToggleRoom";
+import { useCloseRoom } from "../utils/useCloseRoom";
 import { useWindowSize } from "react-use";
 import Confetti from "react-confetti";
+import { WinnerCard } from "./WinnerCard";
+import { useReopenRoom } from "../utils/useReopenRoom";
+import { useChangeWinnerMethod } from "../utils/useChangeWinnerMethod";
 
 type VotingRoomProps = {
   roomId: string;
@@ -20,12 +23,11 @@ const Container = styled.div`
   gap: 12px;
 `;
 
-const VotingWrapper = styled.div`
+const PillWrapper = styled.div`
   width: max-content;
-  align-self: self-end;
+  align-self: center;
   display: flex;
   align-items: end;
-  flex-direction: column;
   gap: 4px;
 `;
 
@@ -61,25 +63,26 @@ const Header = styled.div`
   grid-template-columns: auto max-content;
 `;
 
-const FateCard = styled(Card)`
-  background: ${ACCENT};
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  align-items: center;
-`;
-
 export default function VotingRoom({ roomId }: VotingRoomProps) {
   const { roomState, status, vote, addOption, mySelections } = useRoomSocket(roomId);
   const [customOption, setCustomOption] = useState("");
   const [error, setError] = useState("");
   const { width, height } = useWindowSize();
-  const { toggleRoom, error: toggleError } = useToggleRoom(roomId);
+  const { closeRoom, error: closeError } = useCloseRoom(roomId);
+  const { reopenRoom, error: reopenError } = useReopenRoom(roomId);
+  const { changeWinnerMethod, error: changeWinnerError } = useChangeWinnerMethod(roomId);
   const [recycleConfetti, setRecycleConfetti] = useState(false);
 
   const navigate = useNavigate();
 
   const isRoomClosed = roomState?.is_closed ?? false;
+  const showTieBreaker =
+    isRoomClosed &&
+    ((roomState?.winner_method === "top_vote" && roomState?.winning_options.length > 1) ||
+      roomState?.winner_method === "top_vote_random_tie_breaker");
+
+  const showCloseVoting =
+    !isRoomClosed && roomState?.votes && Object.values(roomState?.votes).some((val) => val !== 0);
 
   const wasClosedRef = useRef<boolean | null>(null); // null = "we don't know yet"
 
@@ -178,14 +181,26 @@ export default function VotingRoom({ roomId }: VotingRoomProps) {
         <h2>{roomState.question}</h2>
         <CopyButton />
       </Header>
-      {isRoomClosed && (
-        <FateCard>
-          <p>Fate has spoken!! Chance has picked:</p>
-          <h1>{roomState?.chosen_option}</h1>
-        </FateCard>
+      <WinnerCard roomState={roomState} />
+      {showTieBreaker && (
+        <PillWrapper>
+          <Pill onClick={async () => await changeWinnerMethod("top_vote_random_tie_breaker")}>
+            ⚄{" "}
+            {roomState?.winner_method === "top_vote_random_tie_breaker"
+              ? "re-roll"
+              : "break the tie!"}
+          </Pill>
+          {roomState?.winner_method === "top_vote_random_tie_breaker" && (
+            <Pill onClick={async () => await changeWinnerMethod("top_vote")}>
+              ← undo tiebreaker
+            </Pill>
+          )}
+        </PillWrapper>
       )}
       <OptionsContainer>
-        {(error || toggleError) && <ErrorBanner>{error || toggleError}</ErrorBanner>}
+        {(error || closeError || reopenError || changeWinnerError) && (
+          <ErrorBanner>{error ?? closeError ?? reopenError ?? changeWinnerError}</ErrorBanner>
+        )}
         {Object.entries(roomState.votes).map(([option, count]) => {
           const percentage = count ? (count / totalVotes) * 100 : 0;
           return (
@@ -220,11 +235,19 @@ export default function VotingRoom({ roomId }: VotingRoomProps) {
         )}
       </OptionsContainer>
 
-      <VotingWrapper>
-        <Pill onClick={async () => await toggleRoom()}>
-          {isRoomClosed ? "↻ reopen voting" : "⚄ can't decide? leave it to lady luck!"}
-        </Pill>
-      </VotingWrapper>
+      <PillWrapper>
+        {!isRoomClosed && (
+          <Pill onClick={async () => await closeRoom("random")}>
+            ⚄ can't decide? leave it to lady luck!
+          </Pill>
+        )}
+        {isRoomClosed && <Pill onClick={async () => await reopenRoom()}>↻ reopen voting</Pill>}
+        {showCloseVoting && (
+          <Pill backgroundColor={YELLOW} onClick={async () => await closeRoom("top_vote")}>
+            ⚑ close voting
+          </Pill>
+        )}
+      </PillWrapper>
 
       <VoteCount>
         <p>total votes: {totalVotes}</p>

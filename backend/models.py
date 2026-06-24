@@ -2,8 +2,16 @@ import uuid
 import random
 from typing import Dict, List, Set, Optional
 
+from enum import Enum
+
 from fastapi import WebSocket
 from pydantic import BaseModel
+
+
+class WinnerMethod(str, Enum):
+    RANDOM = "random"
+    TOP_VOTE = "top_vote"
+    TOP_VOTE_RANDOM_TIE_BREAKER = 'top_vote_random_tie_breaker'
 
 
 class CreateRoomRequest(BaseModel):
@@ -14,6 +22,12 @@ class CreateRoomRequest(BaseModel):
 
 class AddOptionRequest(BaseModel):
     option: str
+
+class CloseRoomRequest(BaseModel):
+    method: WinnerMethod
+
+class ChangeMethodRequest(BaseModel):
+    method: WinnerMethod
 
 
 class Room:
@@ -32,7 +46,9 @@ class Room:
 
         # is voting open or did we make a selection
         self.is_closed = False
-        self.chosen_option: Optional[str] = None
+        self.winner_method: WinnerMethod = WinnerMethod.TOP_VOTE
+        self.winning_options: List[str] = []
+        self.chosen_winner: Optional[str] = None
 
     def add_option(self, option: str) -> bool:
         """Add a new option to the room. Returns False if it already exists."""
@@ -40,6 +56,49 @@ class Room:
             return False
         self.options.append(option)
         return True
+
+    def reopen(self):
+        self.is_closed = False
+        self.winning_options = []
+        self.chosen_winner = None
+    
+    def close(self, method: WinnerMethod):
+        if self.is_closed:
+            return
+        else:
+            self.is_closed = True
+            self.winner_method = method
+            self.select_winner(method)
+    
+    def change_winner_method(self, method: WinnerMethod):
+            self.winner_method = method
+            self.select_winner(method)
+    
+    def _get_top_options(self):
+        tally = self.votes
+        if not tally:
+            return []
+        else:
+            top_count = max(tally.values())
+            return [opt for opt, count in tally.items() if count == top_count]
+
+    def select_winner(self, method: WinnerMethod):
+        """
+        Select winner by method
+        """
+        print('method: ', method)
+        if method == WinnerMethod.RANDOM:
+            random_winner = random.choice(self.options) if self.options else None
+            self.winning_options = [random_winner] if random_winner else []
+            self.chosen_winner = random_winner
+        elif method == WinnerMethod.TOP_VOTE:
+            self.winning_options = self._get_top_options()
+        elif method == WinnerMethod.TOP_VOTE_RANDOM_TIE_BREAKER:
+            top_options = self._get_top_options()
+            self.winning_options = top_options
+            random_winner = random.choice(top_options) if top_options else None
+            self.chosen_winner = random_winner            
+
 
     def toggle_vote(self, voter_id: str, option: str) -> bool:
         """
@@ -86,10 +145,6 @@ class Room:
         """Number of currently open connections (people with the page open)."""
         return len(self.connections)
 
-    def set_chosen_option(self):
-        self.chosen_option = random.choice(self.options)
-        return self.chosen_option
-
     async def broadcast_state(self):
         """
         Send room state to every connected client.
@@ -109,8 +164,10 @@ class Room:
                 "voter_count": self.voter_count,
                 "viewer_count": self.viewer_count,
                 "single_vote": self.single_vote,
-                "chosen_option": self.chosen_option,
-                "is_closed": self.is_closed
+                "is_closed": self.is_closed,
+                "winning_options": self.winning_options,
+                "chosen_winner": self.chosen_winner,
+                "winner_method": self.winner_method
             }
             try:
                 await ws.send_json(payload)

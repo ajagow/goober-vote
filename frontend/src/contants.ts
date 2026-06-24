@@ -30,8 +30,8 @@ export const Button = styled.button<{ backgroundColor?: string }>`
   ${({ backgroundColor }) => backgroundColor && `background: ${backgroundColor};`}
 `;
 
-export const Pill = styled.button`
-  background: transparent;
+export const Pill = styled.button<{ backgroundColor?: string }>`
+  background: ${({ backgroundColor }) => (backgroundColor ? backgroundColor : "transparent")};
   box-shadow: unset;
   border-radius: 999px;
   font-weight: 700;
